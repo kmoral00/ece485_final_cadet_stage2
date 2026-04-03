@@ -38,7 +38,7 @@ entity pipeline_registers is
         id_ex_reg1_data  : inout  STD_LOGIC_VECTOR(31 downto 0);
         -- <add other id_ex registers>
         id_ex_npc : inout STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
-        id_ex_alu_result : inout STD_LOGIC_VECTOR(31 downto 0);
+        id_ex_alu_result : in STD_LOGIC_VECTOR(31 downto 0); --changed from inout to in
         id_ex_alu_op : inout STD_LOGIC_VECTOR(3 downto 0);
         id_ex_imm : inout STD_LOGIC_VECTOR(31 downto 0);
         id_ex_reg2_data : inout STD_LOGIC_VECTOR(31 downto 0);
@@ -120,7 +120,7 @@ begin
             
             -- <add other registers>
             id_ex_npc <= (others => '0');
-            id_ex_alu_result <= (others => '0');
+         --   id_ex_alu_result <= (others => '0');
             id_ex_alu_op <= (others => '0');
             id_ex_imm <= (others => '0');
             id_ex_reg1_data <= (others => '0');
