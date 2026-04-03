@@ -54,7 +54,7 @@ entity pipeline_registers is
         ex_mem_branch : inout STD_LOGIC; --changed from out to inout??
         ex_mem_jump : inout STD_LOGIC;  --changed from out to inout??
         ex_mem_load_addr : inout STD_LOGIC;
-        ex_mem_reg1_data : out STD_LOGIC_VECTOR(31 downto 0);
+        ex_mem_reg1_data : inout STD_LOGIC_VECTOR(31 downto 0);
         -- <add other ex_mem registers>
         ex_mem_npc : inout STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
         ex_mem_alu_result : inout STD_LOGIC_VECTOR(31 downto 0);
@@ -152,6 +152,15 @@ begin
             mem_wb_rd <= (others => '0');
             
         elsif rising_edge(clk) then
+            id_ex_npc <= if_id_npc;
+            id_ex_alu_op <= if_id_alu_op;
+            id_ex_imm <= if_id_imm;
+            id_ex_instr <= if_id_instr;
+            id_ex_reg1_data <= if_id_reg1_data;
+            id_ex_reg2_data <= if_id_reg2_data;
+            id_ex_rs1 <= if_id_rs1;
+            id_ex_rs2 <= if_id_rs2;
+            id_ex_rd <= if_id_rd;
             id_ex_reg_write <= if_id_reg_write;   
             id_ex_instr <= if_id_instr;
             --Modified -- <add other registers>
@@ -161,6 +170,16 @@ begin
             id_ex_branch <= if_id_branch;
             id_ex_jump <= if_id_jump;
             
+            ex_mem_npc <= id_ex_npc;
+            ex_mem_alu_result <= id_ex_alu_result;
+            ex_mem_alu_op <= id_ex_alu_op;
+            ex_mem_imm <= id_ex_imm;
+            ex_mem_instr <= id_ex_instr;
+            ex_mem_reg1_data <= id_ex_reg1_data;
+            ex_mem_reg2_data <= id_ex_reg2_data;
+            ex_mem_rs1 <= id_ex_rs1;
+            ex_mem_rs2 <= id_ex_rs2;
+            ex_mem_rd <= id_ex_rd;
             ex_mem_reg_write <= id_ex_reg_write;
             ex_mem_instr <= id_ex_instr; --error in id_ex_instr being put as an out and not inout ??
             ex_mem_alu_src <= id_ex_alu_src;
@@ -169,6 +188,16 @@ begin
             ex_mem_branch <= id_ex_branch;
             ex_mem_jump <= id_ex_jump;
             
+            mem_wb_npc <= ex_mem_npc;
+            mem_wb_alu_result <= ex_mem_alu_result;
+            mem_wb_alu_op <= ex_mem_alu_op;
+            mem_wb_imm <= ex_mem_imm;
+            mem_wb_instr <= ex_mem_instr;
+            mem_wb_reg1_data <= ex_mem_reg1_data;
+            mem_wb_reg2_data <= ex_mem_reg2_data;
+            mem_wb_rs1 <= ex_mem_rs1;
+            mem_wb_rs2 <= ex_mem_rs2;
+            mem_wb_rd <= ex_mem_rd;
             mem_wb_reg_write <= ex_mem_reg_write;
             mem_wb_instr <= ex_mem_instr;
             mem_wb_alu_src <= ex_mem_alu_src;

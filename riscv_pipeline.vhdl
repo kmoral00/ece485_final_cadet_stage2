@@ -208,7 +208,7 @@ architecture Behavioral of riscv_pipeline is
             ex_mem_branch : inout STD_LOGIC; --changed from out to inout
             ex_mem_jump : inout STD_LOGIC; --changed from out to inout
             ex_mem_load_addr : inout STD_LOGIC;
-            ex_mem_reg1_data : out STD_LOGIC_VECTOR(31 downto 0);
+            ex_mem_reg1_data : inout STD_LOGIC_VECTOR(31 downto 0);
             -- <add other ex_mem registers>
             ex_mem_npc : inout STD_LOGIC_VECTOR(31 downto 0);
             ex_mem_alu_result : inout STD_LOGIC_VECTOR(31 downto 0);
