@@ -324,6 +324,7 @@ begin
             ex_mem_reg1_data => ex_mem_reg1_data,
             -- <add other ex_mem registers>
             ex_mem_npc => ex_mem_npc,
+            ex_mem_imm => ex_mem_imm,
             ex_mem_alu_result => ex_mem_alu_result,
             ex_mem_alu_op => ex_mem_alu_op,
             ex_mem_instr => ex_mem_instr,
@@ -398,7 +399,7 @@ begin
 --------------------------------------------------------------------------------
     -- ID units
     -- Register file [used in ID and WB stages]
-    reg_write_chip <= if_id_reg_write;
+    reg_write_chip <= mem_wb_reg_write; --changed from id_if to mem_wb
     reg_file_inst: reg_file
         port map (
         clk       => clk,
@@ -453,17 +454,17 @@ begin
         data_in   => ex_mem_reg2_data,
         data_out  => mem_data,
         mem_read  => ex_mem_mem_read,
-        mem_write => mem_write_chip
+        mem_write => mem_write_chip 
     );
     mem_wb_mem_data <= mem_data; 
-
-    -- Comparator 
-    not_equal_flag <= '1' when (reg1_data /= reg2_data) else '0';
     
+    -- Comparator 
+    not_equal_flag <= '1' when (ex_mem_reg1_data /= ex_mem_reg2_data) else '0'; --updated not_equal_flag
+   
     next_pc <= std_logic_vector(signed(ex_mem_npc)+shift_left(signed(ex_mem_imm),1)) when (ex_mem_branch = '1' and not_equal_flag = '1') else -- branch case 
                std_logic_vector(signed(ex_mem_npc)+signed(ex_mem_imm)) when (ex_mem_jump = '1') else  -- jump case
                NPC; --when (<what control signals? are any needed?>); -- note: this happens during IF !!! 1st two during MEM
-                      --Potential Issues ex_mem_npc and ex_mem_jump
+                      
     -- MEM/WB pipeline register
 
 
@@ -471,8 +472,14 @@ begin
     -- WB Units
     
     -- MUX to write back to register file
-    wb_data <= mem_wb_mem_data when (mem_wb_reg_write = '1' and mem_wb_mem_read = '1') else  --DOUBLE CHECK change to mem_wb signals
-               x"10000000" when (mem_wb_reg_write = '1' and mem_wb_load_addr = '1') else  -- hack for custom load_addr instruction -- DOUBLE CHECK
-               mem_wb_alu_result when (mem_wb_reg_write = '1' and mem_wb_mem_read = '0');  --DOUBLE CHECK
+    wb_data <= x"10000000" when (mem_wb_reg_write = '1' and mem_wb_load_addr = '1') else
+               mem_wb_mem_data when (mem_wb_reg_write = '1' and mem_wb_mem_read = '1') else
+               mem_wb_alu_result when (mem_wb_reg_write = '1') else
+               wb_data;
+               
+    --wb_data <= mem_wb_mem_data when (mem_wb_reg_write = '1' and mem_wb_mem_read = '1') else  --DOUBLE CHECK change to mem_wb signals
+    --           x"10000000" when (mem_wb_reg_write = '1' and mem_wb_load_addr = '1') else  -- hack for custom load_addr instruction -- DOUBLE CHECK
+    --           mem_wb_alu_result when (mem_wb_reg_write = '1' and mem_wb_mem_read = '0') else
+    --           wb_data; 
    
 end Behavioral;

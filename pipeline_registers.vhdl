@@ -153,6 +153,7 @@ begin
             
         elsif rising_edge(clk) then
             id_ex_npc <= if_id_npc;
+            id_ex_load_addr <= if_id_load_addr;
             id_ex_alu_op <= if_id_alu_op;
             id_ex_imm <= if_id_imm;
             id_ex_instr <= if_id_instr;
@@ -171,6 +172,7 @@ begin
             id_ex_jump <= if_id_jump;
             
             ex_mem_npc <= id_ex_npc;
+            ex_mem_load_addr <= id_ex_load_addr;
             ex_mem_alu_result <= id_ex_alu_result;
             ex_mem_alu_op <= id_ex_alu_op;
             ex_mem_imm <= id_ex_imm;
@@ -181,7 +183,7 @@ begin
             ex_mem_rs2 <= id_ex_rs2;
             ex_mem_rd <= id_ex_rd;
             ex_mem_reg_write <= id_ex_reg_write;
-            ex_mem_instr <= id_ex_instr; --error in id_ex_instr being put as an out and not inout ??
+            ex_mem_instr <= id_ex_instr;
             ex_mem_alu_src <= id_ex_alu_src;
             ex_mem_mem_read <= id_ex_mem_read;
             ex_mem_mem_write <= id_ex_mem_write;
@@ -189,6 +191,7 @@ begin
             ex_mem_jump <= id_ex_jump;
             
             mem_wb_npc <= ex_mem_npc;
+            mem_wb_load_addr <= ex_mem_load_addr;
             mem_wb_alu_result <= ex_mem_alu_result;
             mem_wb_alu_op <= ex_mem_alu_op;
             mem_wb_imm <= ex_mem_imm;
