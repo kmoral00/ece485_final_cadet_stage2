@@ -50,6 +50,9 @@ architecture Behavioral of riscv_pipeline is
     signal reg_write, reg_write_chip  : STD_LOGIC;
     signal rs1, rs2, rd : STD_LOGIC_VECTOR(4 downto 0);
     signal wb_rd        : STD_LOGIC_VECTOR(4 downto 0);
+    --ADDEDStage 3 Signals
+    signal alu_op : STD_LOGIC_VECTOR (3 downto 0);
+    
        
     -- Registers for pipeline stages
     signal if_id_npc, id_ex_npc, ex_mem_npc, mem_wb_npc             : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
@@ -160,24 +163,36 @@ architecture Behavioral of riscv_pipeline is
         Port (
             clk         : in  STD_LOGIC;
             reset       : in  STD_LOGIC;
+            --inputs from IF stage
+            reg_write : in STD_LOGIC;
+            alu_src : in STD_LOGIC;
+            mem_read : in STD_LOGIC;
+            mem_write : in STD_LOGIC;
+            branch : in STD_LOGIC;
+            jump : in STD_LOGIC;
+            load_addr : in STD_LOGIC;
+            instr : in STD_LOGIC_VECTOR (31 downto 0);
+            npc : in STD_LOGIC_VECTOR (31 downto 0);
+            rd : in STD_LOGIC_VECTOR (4 downto 0);
+            alu_op : in STD_LOGIC_VECTOR (3 downto 0);
             -- IF/ID pipeline registers
-            if_id_reg_write : in STD_LOGIC;
-            if_id_alu_src : in STD_LOGIC;
-            if_id_mem_read : in STD_LOGIC;
-            if_id_mem_write : in STD_LOGIC;
-            if_id_branch : in STD_LOGIC;
-            if_id_jump : in STD_LOGIC;
-            if_id_load_addr : in STD_LOGIC;
-            if_id_instr : in  STD_LOGIC_VECTOR(31 downto 0);
+            if_id_reg_write : inout STD_LOGIC;
+            if_id_alu_src : inout STD_LOGIC;
+            if_id_mem_read : inout STD_LOGIC;
+            if_id_mem_write : inout STD_LOGIC;
+            if_id_branch : inout STD_LOGIC;
+            if_id_jump : inout STD_LOGIC;
+            if_id_load_addr : inout STD_LOGIC;
+            if_id_instr : inout  STD_LOGIC_VECTOR(31 downto 0);
             -- <add other if_id registers>
-            if_id_npc : in STD_LOGIC_VECTOR(31 downto 0);
-            if_id_alu_op : in STD_LOGIC_VECTOR(3 downto 0);
-            if_id_imm : in STD_LOGIC_VECTOR(31 downto 0);
+            if_id_npc : inout STD_LOGIC_VECTOR(31 downto 0);
+            if_id_alu_op : inout STD_LOGIC_VECTOR(3 downto 0);
+            if_id_imm : inout STD_LOGIC_VECTOR(31 downto 0);
             if_id_reg1_data : in STD_LOGIC_VECTOR(31 downto 0);
             if_id_reg2_data : in STD_LOGIC_VECTOR(31 downto 0);
-            if_id_rs1 : in STD_LOGIC_VECTOR (4 downto 0);
-            if_id_rs2 : in STD_LOGIC_VECTOR(4 downto 0);
-            if_id_rd : in STD_LOGIC_VECTOR(4 downto 0);
+            if_id_rs1 : inout STD_LOGIC_VECTOR (4 downto 0);
+            if_id_rs2 : inout STD_LOGIC_VECTOR(4 downto 0);
+            if_id_rd : inout STD_LOGIC_VECTOR(4 downto 0);
            
             -- ID/EX pipeline registers
             id_ex_reg_write : inout STD_LOGIC;
@@ -274,6 +289,18 @@ begin
         port map (
             clk    => clk,
             reset  => reset,
+            --inputs from IF
+            reg_write => reg_write,
+            alu_src => alu_src,
+            mem_read => mem_read,
+            mem_write => mem_write,
+            branch => branch,
+            jump => jump,
+            load_addr => load_addr,
+            instr => instr,
+            npc => NPC,
+            rd => instr(11 downto 7),
+            alu_op => alu_op,
             -- IF/ID pipeline registers
             if_id_reg_write => if_id_reg_write,
             if_id_alu_src => if_id_alu_src,
@@ -360,15 +387,16 @@ begin
             instr => instr
         );   
     -- IF/ID pipeline registers
-    if_id_instr <= instr;
-    if_id_npc    <= NPC;
+    --if_id_instr <= instr;
+    --if_id_npc    <= NPC;
 
     -- Decode instruction fields
-    if_id_rs1 <= if_id_instr(19 downto 15); --5 bits
-    if_id_rs2 <= if_id_instr(24 downto 20); --5 bits
-    if_id_rd  <= if_id_instr(11 downto 7); --5 bits
-    opcode <= if_id_instr(6 downto 0); --7 bits
-
+    --if_id_rs1 <= if_id_instr(19 downto 15); --5 bits
+    --if_id_rs2 <= if_id_instr(24 downto 20); --5 bits
+    --if_id_rd  <= if_id_instr(11 downto 7); --5 bits
+    --opcode <= if_id_instr(6 downto 0); --7 bits
+    opcode <= instr(6 downto 0);
+    
     -- Control unit
     control_unit_inst: control_unit
         port map (
@@ -381,20 +409,23 @@ begin
             load_addr => load_addr,
             jump      => jump
         );
-    if_id_reg_write <= reg_write;
-	if_id_mem_read <= mem_read;
-	if_id_mem_write <= mem_write;
-	if_id_alu_src <= alu_src;
-	if_id_branch <= branch;
-	if_id_load_addr <= load_addr;
-	if_id_jump	<= jump;
+    --if_id_reg_write <= reg_write;
+	--if_id_mem_read <= mem_read;
+	--if_id_mem_write <= mem_write;
+	--if_id_alu_src <= alu_src;
+	--if_id_branch <= branch;
+	--if_id_load_addr <= load_addr;
+	--if_id_jump	<= jump;
             
     -- ALU control unit
     alu_control_inst: alu_control
             port map (
-                funct3 => if_id_instr(14 downto 12), --3 bits
-                funct7 => if_id_instr(31 downto 25), --7 bits
-                alu_op => if_id_alu_op
+                --funct3 => if_id_instr(14 downto 12), --3 bits
+                funct3 => instr(14 downto 12),
+                --funct7 => if_id_instr(31 downto 25), --7 bits
+                funct7 => instr (31 downto 25),
+                --alu_op => if_id_alu_op
+                alu_op => alu_op
             );	
 --------------------------------------------------------------------------------
     -- ID units
